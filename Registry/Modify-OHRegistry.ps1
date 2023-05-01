@@ -44,7 +44,7 @@ Deletes the registry value named "MyApp" under the registry key "HKCU:\Software\
 
 #>
 
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess=$true)]
     Param (
         [Parameter(Mandatory=$true,
         HelpMessage="The path to the registry key eg HKCU:\Software\Microsoft")]
@@ -90,8 +90,8 @@ Deletes the registry value named "MyApp" under the registry key "HKCU:\Software\
         'replace' {
             if (!(Test-Path $path)) {
                 # path does not exist, so create it and the data\value\type
-                write-warning "The path $path does not exist, so creating path, name and value..."
-                New-Item -Path $path
+                write-warning "The path $path does not exist, so creating path, name and value..."              
+                New-Item -Path $path                
                 New-ItemProperty -Path $path -Name $name -PropertyType $type -Value $value
                 Write-host "Created $path with name: $name and value: $value"
             } elseif ((Get-ItemProperty -Path $path -Name $name -ErrorAction SilentlyContinue) -eq $null) {
@@ -102,7 +102,9 @@ Deletes the registry value named "MyApp" under the registry key "HKCU:\Software\
             } else {
                 # the path, name and value exists but regardless of the type and value, overwrite with new values
                 write-warning "Action set to: $Action, so replacing type and value at $path\$name"
-                Set-ItemProperty -Path $path -Name $name -Value $value -type $type -Force
+                if ($PSCmdlet.ShouldProcess("type:$type and value:$value","replace")) {
+                    Set-ItemProperty -Path $path -Name $name -Value $value -type $type -Force
+                }
                 Write-Host "Replaced type with $type and value with $value at $path::$name"
             } 
         }
@@ -113,10 +115,12 @@ Deletes the registry value named "MyApp" under the registry key "HKCU:\Software\
             } else {
                 # delete the name
                 write-warning "Action set to: $action, deleting name entry..."
-                Remove-ItemProperty -Path $path -Name $name -Force
+                if ($PSCmdlet.ShouldProcess("$path\$name","delete")) {
+                    Remove-ItemProperty -Path $path -Name $name -Force
+                }
                 write-host "Deleted name: $name at location: $path"
             }
         }
         default {write-warning "$action is not a valid action type.  The action must be one of: 'Create', 'Replace' or 'Delete'."}
     }
-}
+} 

@@ -92,7 +92,7 @@ Deletes the registry value named "MyApp" under the registry key "HKCU:\Software\
                 # path does not exist, so create it and the data\value\type
                 write-warning "The path $path does not exist, so creating path, name and value..."              
                 New-Item -Path $path                
-                New-ItemProperty -Path $path -Name $name -PropertyType $type -Value $value
+                New-ItemProperty -Path $path -Name $name -PropertyType $type -Value $value -ErrorAction SilentlyContinue
                 Write-host "Created $path with name: $name and value: $value"
             } elseif ((Get-ItemProperty -Path $path -Name $name -ErrorAction SilentlyContinue) -eq $null) {
                 # the path exists but there is no data \ value

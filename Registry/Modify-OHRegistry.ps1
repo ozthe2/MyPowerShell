@@ -102,9 +102,7 @@ Deletes the registry value named "MyApp" under the registry key "HKCU:\Software\
             } else {
                 # the path, name and value exists but regardless of the type and value, overwrite with new values
                 write-warning "Action set to: $Action, so replacing type and value at $path\$name"
-                if ($PSCmdlet.ShouldProcess("type:$type and value:$value","replace")) {
-                    Set-ItemProperty -Path $path -Name $name -Value $value -type $type -Force
-                }
+                Set-ItemProperty -Path $path -Name $name -Value $value -type $type -Force                
                 Write-Host "Replaced type with $type and value with $value at $path::$name"
             } 
         }
@@ -114,10 +112,8 @@ Deletes the registry value named "MyApp" under the registry key "HKCU:\Software\
                 Write-Host "Action set to: $action, but the name: $name at location: $path does not exist, nothing to delete." -ForegroundColor Green                
             } else {
                 # delete the name
-                write-warning "Action set to: $action, deleting name entry..."
-                if ($PSCmdlet.ShouldProcess("$path\$name","delete")) {
-                    Remove-ItemProperty -Path $path -Name $name -Force
-                }
+                write-warning "Action set to: $action, deleting name entry..."               
+                Remove-ItemProperty -Path $path -Name $name -Force               
                 write-host "Deleted name: $name at location: $path"
             }
         }

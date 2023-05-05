@@ -1,4 +1,56 @@
 function New-OHScheduledTask {
+<#
+.SYNOPSIS
+Creates a new scheduled task to run a PowerShell script with optional delay, start time, and user privileges.
+
+.DESCRIPTION
+The New-OHScheduledTask function creates a new scheduled task in the Task Scheduler to run a specified PowerShell script. It allows you to specify a task name, description, trigger, allowed user, script path, delay time, task folder, run with highest privilege, start task immediately, and delete existing task.
+
+.PARAMETER TaskName
+The name of the scheduled task. If not specified, the leaf name of the script path will be used instead.
+
+.PARAMETER TaskDescription
+A brief description of what the scheduled task does. Default is "Runs a PowerShell script."
+
+.PARAMETER Trigger
+The trigger for the scheduled task. Valid options are "AtLogon" and "AtStartup".
+
+.PARAMETER AllowedUser
+The user account that is allowed to run the scheduled task. Valid options are "BUILTIN\Users" and "NT AUTHORITY\SYSTEM".
+
+.PARAMETER ScriptPath
+The path to the PowerShell script that the scheduled task will run. This parameter is mandatory and must end with ".ps1".
+
+.PARAMETER DelayTask
+A delay time before the scheduled task runs. Valid options are "1s", "1m", "30m", and "1h".
+
+.PARAMETER TaskFolder
+The folder to store the scheduled task in. Default is "OHTesting".
+
+.PARAMETER RunWithHighestPrivilege
+Indicates that the scheduled task should run with the highest privilege. This parameter is a switch parameter.
+
+.PARAMETER StartTaskImmediately
+Indicates that the scheduled task should be started immediately after creation. This parameter is a switch parameter.
+
+.PARAMETER DeleteExistingTask
+Indicates that an existing task with the same name should be deleted before creating a new one. This parameter is a switch parameter.
+
+.EXAMPLE
+New-OHScheduledTask -TaskName "MyTask" -ScriptPath "C:\Scripts\MyScript.ps1" -AllowedUser "BUILTIN\Users" -Trigger "AtStartup" -RunWithHighestPrivilege -StartTaskImmediately
+Creates a scheduled task named "MyTask" to run "C:\Scripts\MyScript.ps1" at startup, allows "BUILTIN\Users" to run the task, runs the task with the highest privilege, and starts the task immediately after creation.
+
+.EXAMPLE
+New-OHScheduledTask -ScriptPath "C:\Scripts\MyScript.ps1" -AllowedUser "NT AUTHORITY\SYSTEM" -DelayTask "30m"
+Creates a scheduled task to run "C:\Scripts\MyScript.ps1" with a 30-minute delay, and allows "NT AUTHORITY\SYSTEM" to run the task.
+
+.NOTES
+This function requires administrative privileges to create a scheduled task.
+
+Created By: owen.heaume
+On: 05-May-2023
+
+#>
     [CmdletBinding()]
     param(
         [Parameter()]
@@ -142,6 +194,3 @@ function New-OHScheduledTask {
         exit
     }                    
 }
-
-# Testing
-New-OHScheduledTask -Trigger AtStartup -AllowedUser 'NT AUTHORITY\SYSTEM' -ScriptPath "c:\ohtemp\test2.ps1" -RunWithHighestPrivilege

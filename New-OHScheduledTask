@@ -1,0 +1,147 @@
+function New-OHScheduledTask {
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [string]$TaskName,
+
+        [Parameter()]
+        [string]$TaskDescription = "Runs a PowerShell script.",
+
+        [Parameter(Mandatory=$false)]
+        [ValidateSet('AtLogon', 'AtStartup')]
+        [string]$Trigger,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateSet('BUILTIN\Users', 'NT AUTHORITY\SYSTEM')]
+        [string]$AllowedUser,
+        
+        [Parameter(Mandatory=$true)]
+        [ValidateScript({$_ -match '\.ps1$'})]
+        [string]$ScriptPath,
+
+        [Parameter()]
+        [ValidateSet('1s', '1m', '30m', '1h')]
+        [string]$DelayTask,
+
+        [Parameter()]
+        [string]$TaskFolder = "OHTesting",
+
+        [Parameter()]
+        [switch]$RunWithHighestPrivilege,
+
+        [Parameter()]
+        [switch]$StartTaskImmediately,
+
+        [Parameter()]
+        [switch]$DeleteExistingTask
+    )
+   
+    if (!(Test-Path $ScriptPath)) {
+        Write-host "Script path not found: $ScriptPath" -ForegroundColor Yellow
+        return
+    }
+
+    # If a -TaskName was not used, then get the leaf name of the script path to use instead
+    if ($TaskName -eq "") {
+        $TaskName = $(Split-Path $ScriptPath -Leaf -Resolve).Replace('.ps1',"")
+    }
+
+    #  If the switch was used, delete the task if it already exists (by task name)
+    if ($DeleteExistingTask) {
+        if ($(Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue).TaskName -eq $TaskName) {
+            write-host "Deleting task: $TaskName" -ForegroundColor Yellow
+            Unregister-ScheduledTask -TaskName $TaskName -Confirm:$False
+        } else {
+            write-host "$TaskName not found. No task to delete" -ForegroundColor Cyan
+        }
+    }
+
+    # Create the scheduled task folder if it doesn't exist        
+    if (!($taskFolder)) {
+        # Create the folder as it does not exist    
+        $scheduleObject = New-Object -ComObject schedule.service
+        $scheduleObject.connect()
+        $rootFolder = $scheduleObject.GetFolder("\")
+
+        Try {
+            $null = $scheduleObject.GetFolder($taskFolder) }
+        Catch { 
+            $null = $rootFolder.CreateFolder($taskFolder) 
+        }
+    }         
+
+    # Check if a task with the same name already exists
+    if (Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue) {
+            Write-Host "A task with the name '$TaskName' already exists. Please provide a different task name." -ForegroundColor Red
+            return
+    }
+     
+    # Task action
+    $taskAction = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-File `"$ScriptPath`""    
+
+    # Task Trigger
+    switch ($trigger) {
+        'AtStartup' { $taskTrigger = New-ScheduledTaskTrigger -AtStartup }
+        'AtLogon' { $taskTrigger = New-ScheduledTaskTrigger -AtLogOn }
+    }
+
+    # Task principal
+    $taskPrincipal = New-ScheduledTaskPrincipal -GroupId $AllowedUser
+
+    # task settings
+    $taskSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -WakeToRun
+    if ($RunWithHighestPrivilege) {
+        $taskSettings.ExecutionTimeLimit = 'PT0S'
+        $taskSettings.RunOnlyIfNetworkAvailable = $false        
+        $taskSettings.Hidden = $false
+        $taskSettings.Priority = 7        
+    }    
+
+    # Add a task delay if selected
+    if ($DelayTask) {
+        $taskDelay = New-TimeSpan -Seconds 1
+        switch ($DelayTask) {
+            '1s' { $taskDelay = New-TimeSpan -Seconds 1 }
+            '1m' { $taskDelay = New-TimeSpan -Minutes 1 }
+            '30m' { $taskDelay = New-TimeSpan -Minutes 30 }
+            '1h' { $taskDelay = New-TimeSpan -Hours 1 }
+        }
+        $delayTime = "PT" + $taskDelay.ToString('hh') + "H" + $taskDelay.ToString('mm') + "M" + $taskDelay.ToString('ss') + "S"
+        $taskTrigger.Delay = $delayTime        
+    }
+
+    # Run with highest privileges if selected
+    if($RunWithHighestPrivilege) {
+        $taskPrincipal.RunLevel = "Highest"
+    } else {
+        $taskPrincipal.RunLevel = "Limited"
+    }    
+
+    # Register the new PowerShell scheduled task
+    Register-ScheduledTask `
+        -TaskName $TaskName `
+        -Action $taskAction `
+        -Trigger $taskTrigger `
+        -Principal $taskPrincipal `
+        -Description $TaskDescription `
+        -TaskPath "\$taskFolder"
+    
+    # If the switch has been used, then start the task straight away
+    if ($StartTaskImmediately)  {
+        Start-ScheduledTask -TaskName $TaskName -TaskPath "\$taskFolder"
+    }
+    
+    # Verify the task has been registered
+    try {
+        if ($(Get-ScheduledTask -TaskName $TaskName -ErrorAction stop -ev x).TaskName -eq $TaskName) {
+            write-host "Task registered successfully!" -ForegroundColor Green
+        }
+    } catch {
+        Write-Warning "The task was not registered"
+        $x
+        exit
+    }                    
+}
+
+# Testing
+New-OHScheduledTask -Trigger AtStartup -AllowedUser 'NT AUTHORITY\SYSTEM' -ScriptPath "c:\ohtemp\test2.ps1" -RunWithHighestPrivilege

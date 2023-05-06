@@ -1,4 +1,4 @@
-function Modify-OHRegistry {
+function Set-OHRegistry {
 <#
 .SYNOPSIS
 Modifies the Windows registry by creating, replacing or deleting a specified registry key value.
@@ -31,15 +31,15 @@ Version: 1.0
  - Initial script creation
 
 .EXAMPLE
-Modify-OHRegistry -path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -name "MyApp" -type "String" -value "C:\Program Files\MyApp\MyApp.exe" -Action "create"
+Set-OHRegistry -path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -name "MyApp" -type "String" -value "C:\Program Files\MyApp\MyApp.exe" -Action "create"
 Creates a new registry value named "MyApp" with the value "C:\Program Files\MyApp\MyApp.exe" under the registry key "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run".
 
 .EXAMPLE
-Modify-OHRegistry -path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -name "MyApp" -type "String" -value "C:\Program Files\MyApp\MyApp.exe" -Action "replace"
+Set-OHRegistry -path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -name "MyApp" -type "String" -value "C:\Program Files\MyApp\MyApp.exe" -Action "replace"
 Replaces the value of the existing registry value named "MyApp" with the value "C:\Program Files\MyApp\MyApp.exe" under the registry key "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run".
 
 .EXAMPLE
-Modify-OHRegistry -path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -name "MyApp" -type "String" -value "C:\Program Files\MyApp\MyApp.exe" -Action "delete"
+Set-OHRegistry -path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -name "MyApp" -type "String" -value "C:\Program Files\MyApp\MyApp.exe" -Action "delete"
 Deletes the registry value named "MyApp" under the registry key "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run".
 
 #>
@@ -81,7 +81,7 @@ Deletes the registry value named "MyApp" under the registry key "HKCU:\Software\
                 # the path exists but there is no data \ value
                 Write-warning "the path exists but there is no data \ value. Creating..."
                 Set-ItemProperty -Path $path -Name $name -Value $value -type $type
-                write-host "Created new name: $name with value: $value at location: $path"    
+                write-host "Created new name: $name with value: $value at location: $path"
             } else {
                 # the path, name and value already exists so do nothing
                 Write-Host "Action set to $Action, and path and name already exist. Nothing to do, so exiting." -ForegroundColor Green
@@ -90,33 +90,33 @@ Deletes the registry value named "MyApp" under the registry key "HKCU:\Software\
         'replace' {
             if (!(Test-Path $path)) {
                 # path does not exist, so create it and the data\value\type
-                write-warning "The path $path does not exist, so creating path, name and value..."              
-                New-Item -Path $path                
+                write-warning "The path $path does not exist, so creating path, name and value..."
+                New-Item -Path $path
                 New-ItemProperty -Path $path -Name $name -PropertyType $type -Value $value -ErrorAction SilentlyContinue
                 Write-host "Created $path with name: $name and value: $value"
             } elseif ((Get-ItemProperty -Path $path -Name $name -ErrorAction SilentlyContinue) -eq $null) {
                 # the path exists but there is no data \ value
                 Write-warning "the path exists but there is no data \ value. Creating..."
                 Set-ItemProperty -Path $path -Name $name -Value $value -type $type
-                write-host "Created new name: $name with value: $value at location: $path"    
+                write-host "Created new name: $name with value: $value at location: $path"
             } else {
                 # the path, name and value exists but regardless of the type and value, overwrite with new values
                 write-warning "Action set to: $Action, so replacing type and value at $path\$name"
-                Set-ItemProperty -Path $path -Name $name -Value $value -type $type -Force                
+                Set-ItemProperty -Path $path -Name $name -Value $value -type $type -Force
                 Write-Host "Replaced type with $type and value with $value at $path::$name"
-            } 
+            }
         }
         'delete' {
             if ((Get-ItemProperty -Path $path -Name $name -ErrorAction SilentlyContinue) -eq $null) {
                 #  only delete the name and data, not the path (registry key). Registry 'name' does not exist, so nothing to delete
-                Write-Host "Action set to: $action, but the name: $name at location: $path does not exist, nothing to delete." -ForegroundColor Green                
+                Write-Host "Action set to: $action, but the name: $name at location: $path does not exist, nothing to delete." -ForegroundColor Green
             } else {
                 # delete the name
-                write-warning "Action set to: $action, deleting name entry..."               
-                Remove-ItemProperty -Path $path -Name $name -Force               
+                write-warning "Action set to: $action, deleting name entry..."
+                Remove-ItemProperty -Path $path -Name $name -Force
                 write-host "Deleted name: $name at location: $path"
             }
         }
         default {write-warning "$action is not a valid action type.  The action must be one of: 'Create', 'Replace' or 'Delete'."}
     }
-} 
+}

@@ -1,4 +1,4 @@
-function New-OHScheduledTask {
+Function New-OHScheduledTask {
 <#
 .SYNOPSIS
 Creates a new scheduled task to run a PowerShell script with optional delay, start time, and user privileges.
@@ -51,7 +51,7 @@ Created By: owen.heaume
 On: 05-May-2023
 
 #>
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess=$true)]
     param(
         [Parameter()]
         [string]$TaskName,
@@ -66,7 +66,7 @@ On: 05-May-2023
         [Parameter(Mandatory=$true)]
         [ValidateSet('BUILTIN\Users', 'NT AUTHORITY\SYSTEM')]
         [string]$AllowedUser,
-        
+
         [Parameter(Mandatory=$true)]
         [ValidateScript({$_ -match '\.ps1$'})]
         [string]$ScriptPath,
@@ -87,7 +87,7 @@ On: 05-May-2023
         [Parameter()]
         [switch]$DeleteExistingTask
     )
-   
+
     if (!(Test-Path $ScriptPath)) {
         Write-host "Script path not found: $ScriptPath" -ForegroundColor Yellow
         return
@@ -108,28 +108,28 @@ On: 05-May-2023
         }
     }
 
-    # Create the scheduled task folder if it doesn't exist        
+    # Create the scheduled task folder if it doesn't exist
     if (!($taskFolder)) {
-        # Create the folder as it does not exist    
+        # Create the folder as it does not exist
         $scheduleObject = New-Object -ComObject schedule.service
         $scheduleObject.connect()
         $rootFolder = $scheduleObject.GetFolder("\")
 
         Try {
             $null = $scheduleObject.GetFolder($taskFolder) }
-        Catch { 
-            $null = $rootFolder.CreateFolder($taskFolder) 
+        Catch {
+            $null = $rootFolder.CreateFolder($taskFolder)
         }
-    }         
+    }
 
     # Check if a task with the same name already exists
     if (Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue) {
             Write-Host "A task with the name '$TaskName' already exists. Please provide a different task name." -ForegroundColor Red
             return
     }
-     
+
     # Task action
-    $taskAction = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-File `"$ScriptPath`""    
+    $taskAction = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-File `"$ScriptPath`""
 
     # Task Trigger
     switch ($trigger) {
@@ -144,10 +144,10 @@ On: 05-May-2023
     $taskSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -WakeToRun
     if ($RunWithHighestPrivilege) {
         $taskSettings.ExecutionTimeLimit = 'PT0S'
-        $taskSettings.RunOnlyIfNetworkAvailable = $false        
+        $taskSettings.RunOnlyIfNetworkAvailable = $false
         $taskSettings.Hidden = $false
-        $taskSettings.Priority = 7        
-    }    
+        $taskSettings.Priority = 7
+    }
 
     # Add a task delay if selected
     if ($DelayTask) {
@@ -159,7 +159,7 @@ On: 05-May-2023
             '1h' { $taskDelay = New-TimeSpan -Hours 1 }
         }
         $delayTime = "PT" + $taskDelay.ToString('hh') + "H" + $taskDelay.ToString('mm') + "M" + $taskDelay.ToString('ss') + "S"
-        $taskTrigger.Delay = $delayTime        
+        $taskTrigger.Delay = $delayTime
     }
 
     # Run with highest privileges if selected
@@ -167,7 +167,7 @@ On: 05-May-2023
         $taskPrincipal.RunLevel = "Highest"
     } else {
         $taskPrincipal.RunLevel = "Limited"
-    }    
+    }
 
     # Register the new PowerShell scheduled task
     Register-ScheduledTask `
@@ -177,20 +177,20 @@ On: 05-May-2023
         -Principal $taskPrincipal `
         -Description $TaskDescription `
         -TaskPath "\$taskFolder"
-    
-    # If the switch has been used, then start the task straight away
-    if ($StartTaskImmediately)  {
-        Start-ScheduledTask -TaskName $TaskName -TaskPath "\$taskFolder"
-    }
-    
+
     # Verify the task has been registered
     try {
         if ($(Get-ScheduledTask -TaskName $TaskName -ErrorAction stop -ev x).TaskName -eq $TaskName) {
             write-host "Task registered successfully!" -ForegroundColor Green
+            # If the switch has been used, then start the task straight away
+            if ($StartTaskImmediately)  {
+                Write-host "Starting the task immediately." -ForegroundColor Cyan
+                Start-ScheduledTask -TaskName $TaskName -TaskPath "\$taskFolder"
+            }
         }
     } catch {
         Write-Warning "The task was not registered"
         $x
         exit
-    }                    
+    }
 }

@@ -108,19 +108,6 @@ On: 05-May-2023
         }
     }
 
-    # Create the scheduled task folder if it doesn't exist
-    if (!($taskFolder)) {
-        # Create the folder as it does not exist
-        $scheduleObject = New-Object -ComObject schedule.service
-        $scheduleObject.connect()
-        $rootFolder = $scheduleObject.GetFolder("\")
-
-        Try {
-            $null = $scheduleObject.GetFolder($taskFolder) }
-        Catch {
-            $null = $rootFolder.CreateFolder($taskFolder)
-        }
-    }
 
     # Check if a task with the same name already exists
     if (Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue) {

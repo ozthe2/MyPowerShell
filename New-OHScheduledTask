@@ -22,7 +22,7 @@ The user account that is allowed to run the scheduled task. Valid options are "B
 The path to the PowerShell script that the scheduled task will run. This parameter is mandatory and must end with ".ps1".
 
 .PARAMETER DelayTask
-A delay time before the scheduled task runs. Valid options are "1s", "1m", "30m", and "1h".
+A delay time before the scheduled task runs. Valid options are "30s", "1m", "30m", and "1h".
 
 .PARAMETER TaskFolder
 The folder to store the scheduled task in. Default is "OHTesting".

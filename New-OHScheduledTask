@@ -72,7 +72,7 @@ On: 05-May-2023
         [string]$ScriptPath,
 
         [Parameter()]
-        [ValidateSet('1s', '1m', '30m', '1h')]
+        [ValidateSet('30s', '1m', '30m', '1h')]
         [string]$DelayTask,
 
         [Parameter()]
@@ -108,11 +108,10 @@ On: 05-May-2023
         }
     }
 
-
     # Check if a task with the same name already exists
     if (Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue) {
-            Write-Host "A task with the name '$TaskName' already exists. Please provide a different task name." -ForegroundColor Red
-            return
+        Write-Host "A task with the name '$TaskName' already exists. Please provide a different task name." -ForegroundColor Red
+        return
     }
 
     # Task action
@@ -140,7 +139,7 @@ On: 05-May-2023
     if ($DelayTask) {
         $taskDelay = New-TimeSpan -Seconds 1
         switch ($DelayTask) {
-            '1s' { $taskDelay = New-TimeSpan -Seconds 1 }
+            '30s' { $taskDelay = New-TimeSpan -Seconds 30 }
             '1m' { $taskDelay = New-TimeSpan -Minutes 1 }
             '30m' { $taskDelay = New-TimeSpan -Minutes 30 }
             '1h' { $taskDelay = New-TimeSpan -Hours 1 }

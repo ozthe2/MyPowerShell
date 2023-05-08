@@ -59,7 +59,7 @@ On: 05-May-2023
         [Parameter()]
         [string]$TaskDescription = "Runs a PowerShell script.",
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$true)]
         [ValidateSet('AtLogon', 'AtStartup')]
         [string]$Trigger,
 

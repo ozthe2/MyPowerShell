@@ -1,102 +1,156 @@
 Function New-OHScheduledTask {
     <#
     .SYNOPSIS
-    Creates a new scheduled task to run a PowerShell script with a trigger, a specific user account, and other options.
+    Creates a new scheduled task on the local computer.
     
     .DESCRIPTION
-    The New-OHScheduledTask function creates a new scheduled task to run a PowerShell script with a specific trigger, a specific user account, and other options. You can choose to run the task at logon or startup and allow only specific users to run the task. You can also choose to run the task with the highest privileges, start the task immediately after registration, and delay the task for a specific time. If the task already exists, you can replace or delete it.
+    The New-OHScheduledTask function creates a new scheduled task on the local computer. You can create a task that runs a PowerShell script or an executable program with arguments.
     
     .PARAMETER TaskName
-    The name of the scheduled task. If not specified, the function uses the leaf name of the script path.
+    Specifies the name of the scheduled task.
     
     .PARAMETER TaskDescription
-    The description of the scheduled task. Default value is "Runs a PowerShell script."
+    Specifies a description of the scheduled task. This parameter is mandatory."
     
     .PARAMETER Trigger
-    The trigger for the scheduled task. Valid values are "AtLogon" or "AtStartup."
+    Specifies the trigger for the scheduled task. The accepted values are "AtLogon" and "AtStartup".
     
     .PARAMETER AllowedUser
-    The user account that is allowed to run the scheduled task. Valid values are "BUILTIN\Users" or "NT AUTHORITY\SYSTEM."
+    Specifies the user account that is allowed to run the scheduled task. The accepted values are "BUILTIN\Users" and "NT AUTHORITY\SYSTEM".
     
     .PARAMETER ScriptPath
-    The path to the PowerShell script file. The path must end with ".ps1".
+    Specifies the path to the PowerShell script that the scheduled task runs. This parameter is mandatory if the parameter set name is "Script".
+    
+    .PARAMETER Program
+    Specifies the path to the program that the scheduled task runs. This parameter is mandatory if the parameter set name is "Program".
+    
+    .PARAMETER Arguments
+    Specifies the arguments that the program uses. This parameter is optional.
+    
+    .PARAMETER StartIn
+    Specifies the starting directory for the program. This parameter is optional.
     
     .PARAMETER Action
-    The action to perform. Valid values are "Add", "Replace", or "Delete."
+    Specifies the action for the scheduled task. The accepted values are "add" and "replace".
     
     .PARAMETER DelayTask
-    The delay time for the scheduled task. Valid values are "30s", "1m", "30m", or "1h."
+    Specifies the delay time for the scheduled task. The accepted values are "30s", "1m", "30m", and "1h". This parameter is optional.
     
     .PARAMETER TaskFolder
-    The folder for the scheduled task. Default value is "OHTesting".
+    Specifies the folder for the scheduled task. The default value is "OHTesting".
     
     .PARAMETER RunWithHighestPrivilege
-    If specified, the task runs with the highest privileges.
+    Runs the scheduled task with the highest privileges. This parameter is optional.
     
     .PARAMETER StartTaskImmediately
-    If specified, the task starts immediately after registration.
+    Starts the scheduled task immediately. This parameter is optional.
+    
+    .PARAMETER Delete
+    Deletes the scheduled task. This parameter is optional.
     
     .EXAMPLE
-    New-OHScheduledTask -TaskName "My Task" -Trigger "AtLogon" -AllowedUser "BUILTIN\Users" -ScriptPath "C:\Scripts\MyScript.ps1" -Action "Add" -TaskFolder "MyFolder" -RunWithHighestPrivilege -StartTaskImmediately
-    This example creates a new scheduled task named "My Task" that runs the script "C:\Scripts\MyScript.ps1" at logon for the "BUILTIN\Users" user account. The task is created in the folder "MyFolder" and runs with the highest privileges. The task also starts immediately after registration.
+    New-OHScheduledTask -TaskName "MyTask" -TaskDescription "Runs a PowerShell script with lots of arguments." -Trigger AtStartup -AllowedUser 'NT AUTHORITY\SYSTEM' -Program "C:\Windows\System32\WindowsPowerShell\v1.0\PowerShell.exe" -Arguments '-noprofile -executionpolicy bypass -command "& { . c:\ohtemp\test2.ps1; Show-Text -textToDisplay "Important Text!" }' -Action add -RunWithHighestPrivilege
+    
+    This example creates a new scheduled task named "MyTask" that runs a PowerShell script with lots of arguments at system startup. The task is set to add a new task as long as the task name does not already exist, and it will run with the highest privileges. The PowerShell script in this example displays the text "Important Text!" using the Show-Text function contained in the script.
+    
+    .EXAMPLE
+    New-OHScheduledTask -TaskName "MyTask" -TaskDescription "Runs a simple PowerShell script." -Trigger AtStartup -AllowedUser 'NT AUTHORITY\SYSTEM' -ScriptPath "c:\ohtemp\test2.ps1" -Action replace -RunWithHighestPrivilege
+    
+    This example creates a new scheduled task named "MyTask" that runs a simple PowerShell script at system startup. The task is set to replace any existing task with the same name, and it will run with the highest privileges.
+    
+    .EXAMPLE
+    New-OHScheduledTask -TaskName "MyTask" -Delete
     
     .NOTES
-    The function requires PowerShell version 3.0 or later.
-    By: owen.heaume
-    Date: 05-May-2023
-    Version: 1.5
+    Author: owen.heaume
+    Date: 14-May-2023
+    Version: 1.6
     #>
     
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding(SupportsShouldProcess = $true, DefaultParameterSetName = "Script")]
     param(
         [Parameter()]
         [string]$TaskName,
     
-        [Parameter()]
-        [string]$TaskDescription = "Runs a PowerShell script.",
+        [Parameter(Mandatory = $true, ParameterSetName = "Program")]
+        [Parameter(Mandatory = $true, ParameterSetName = "Script")]
+        [string]$TaskDescription,
     
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = "Program")]
+        [Parameter(Mandatory = $true, ParameterSetName = "Script")]
         [ValidateSet('AtLogon', 'AtStartup')]
-        [string]$Trigger,
+        [string]$Trigger = "AtStartup",
     
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = "Program")]
+        [Parameter(Mandatory = $true, ParameterSetName = "Script")]
         [ValidateSet('BUILTIN\Users', 'NT AUTHORITY\SYSTEM')]
         [string]$AllowedUser,
     
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = "Script")]
         [ValidateScript({ $_ -match '\.ps1$' })]
         [string]$ScriptPath,
     
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('add', 'replace', 'delete')]
+        [Parameter(Mandatory = $true, ParameterSetName = "Program")]
+        [ValidateScript({ $_ -match '\.(exe|bat|cmd)$' })]      
+        [string]$Program,
+    
+        [Parameter(Mandatory = $false, ParameterSetName = "Program")]        
+        [string]$Arguments,
+    
+        [Parameter(Mandatory = $false, ParameterSetName = "Program")]        
+        [string]$StartIn,
+    
+        [Parameter(Mandatory = $true, ParameterSetName = "Program")]
+        [Parameter(Mandatory = $true, ParameterSetName = "Script")]
+        [ValidateSet('add', 'replace')]
         [string]$Action,
     
-        [Parameter()]
+        [Parameter(Mandatory = $false, ParameterSetName = "Program")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Script")]
         [ValidateSet('30s', '1m', '30m', '1h')]
         [string]$DelayTask,
     
-        [Parameter()]
+        [Parameter(Mandatory = $false, ParameterSetName = "Program")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Script")]
         [string]$TaskFolder = "OHTesting",
     
-        [Parameter()]
+        [Parameter(Mandatory = $false, ParameterSetName = "Program")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Script")]
         [switch]$RunWithHighestPrivilege,
     
-        [Parameter()]
-        [switch]$StartTaskImmediately
-    )
+        [Parameter(Mandatory = $false, ParameterSetName = "Program")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Script")]
+        [switch]$StartTaskImmediately,
     
-    if (!(Test-Path $ScriptPath)) {
-        Write-host "Script path not found: $ScriptPath" -ForegroundColor Yellow
-        return
+        [Parameter(ParameterSetName = "Delete")]
+        [switch]$Delete
+    )    
+        
+    if ($PSCmdlet.ParameterSetName -eq "Script") {
+        if (!(Test-Path $ScriptPath)) {
+            Write-host "Script path not found: $ScriptPath" -ForegroundColor Yellow
+            return
+        }
+    
+        # If a -TaskName was not used, then get the leaf name of the script path to use instead
+        if ($TaskName -eq "") {
+            $TaskName = $(Split-Path $ScriptPath -Leaf -Resolve).Replace('.ps1', "")
+        }
     }
+    elseif ($PSCmdlet.ParameterSetName -eq "Program") {
+        if (!(Test-Path $Program)) {
+            Write-host "Program path not found: $Program" -ForegroundColor Yellow
+            return
+        }
     
-    # If a -TaskName was not used, then get the leaf name of the script path to use instead
-    if ($TaskName -eq "") {
-        $TaskName = $(Split-Path $ScriptPath -Leaf -Resolve).Replace('.ps1', "")
+        # If a -TaskName was not used, then get the leaf name of the program path to use instead
+        if ($TaskName -eq "") {
+            $TaskName = $(Split-Path $Program -Leaf -Resolve)
+        }
     }
     
     # If the action is "delete" or "replace," then delete the task if it already exists (by task name)
-    if ($Action -eq "Delete" -or $Action -eq "Replace") {
+    if ($delete -or $Action -eq "Replace") {
         Try {
             if (Get-ScheduledTask -TaskName $TaskName -ErrorAction Stop) {
                 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
@@ -110,10 +164,21 @@ Function New-OHScheduledTask {
     
     # If the action is "add" or "replace," then check if the task already exists
     if ($Action -eq "Add" -or $Action -eq "Replace") {
-        if (!(Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue)) {  
-    
+        if (!(Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue)) {
             # Task action
-            $taskAction = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-File `"$ScriptPath`""
+            if ($PSCmdlet.ParameterSetName -eq "Script") {
+                $taskAction = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-File `"$ScriptPath`""
+            }
+            elseif ($PSCmdlet.ParameterSetName -eq "Program") {
+                $taskAction = New-ScheduledTaskAction -Execute $Program
+                if ($Arguments -ne $null -and $Arguments -ne '') {
+                    #$taskAction.Argument = $Arguments  <<<--- For some reason, this doesn't work
+                    $taskAction = New-ScheduledTaskAction -Execute $Program -Argument $Arguments
+                }
+                if ($StartIn -ne $null -and $StartIn -ne '') {
+                    $taskAction.WorkingDirectory = $StartIn  #<<<--- Yet this does!
+                }
+            }
     
             # Task Trigger
             switch ($trigger) {
@@ -184,5 +249,4 @@ Function New-OHScheduledTask {
             Write-Host "Scheduled Task $taskname already exists so taking no action" -ForegroundColor Yellow
         }
     }   
-}
-    
+}    

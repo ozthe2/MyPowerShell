@@ -60,6 +60,8 @@ Function New-OHScheduledTask {
     
     .EXAMPLE
     New-OHScheduledTask -TaskName "MyTask" -Delete
+
+    This example deletes the scheduled task named, "MyTask" if it exists.
     
     .NOTES
     Author: owen.heaume

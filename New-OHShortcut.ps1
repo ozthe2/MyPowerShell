@@ -59,7 +59,7 @@ function New-OHShortcut {
     
     Created By: owen.heaume
     Date: 12-May-2023
-    Version: 1.3
+    Version: 1.4
     #>
     
     [CmdletBinding(DefaultParameterSetName = "Add")]
@@ -67,16 +67,20 @@ function New-OHShortcut {
         [Parameter(Mandatory = $true, HelpMessage = "Specifies the name of the shortcut.")]
         [string]$ShortcutName,
     
-        [Parameter(Mandatory = $true, HelpMessage = "Specifies the path of the item that the shortcut opens.")]
+        [Parameter(Mandatory = $true,ParameterSetName = "Add", HelpMessage = "Specifies the path of the item that the shortcut opens.")]        
+        [Parameter(Mandatory = $true,ParameterSetName = "Replace")]
         [string]$TargetPath,
     
-        [Parameter(Mandatory = $false, HelpMessage = "Specifies the working directory for the target.")]
+        [Parameter(Mandatory = $false,ParameterSetName = "Add", HelpMessage = "Specifies the working directory for the target.")]        
+        [Parameter(Mandatory = $false,ParameterSetName = "Replace")]
         [string]$WorkingDirectory = "",
     
-        [Parameter(Mandatory = $true, HelpMessage = "Specifies the location of the icon for the shortcut.")]
+        [Parameter(Mandatory = $true, ParameterSetName = "Add",HelpMessage = "Specifies the location of the icon for the shortcut.")]        
+        [Parameter(Mandatory = $true,ParameterSetName = "Replace")]
         [string]$IconLocation,
     
-        [Parameter(Mandatory = $false, HelpMessage = "Specifies the window style for the shortcut.")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Add",HelpMessage = "Specifies the window style for the shortcut.")]        
+        [Parameter(Mandatory = $false,ParameterSetName = "Replace")]
         [ValidateSet(3, 7, 4)]
         [int]$WindowsStyle = 7,
     
@@ -92,7 +96,8 @@ function New-OHShortcut {
         [ValidateSet("Desktop", "StartMenu", "Both")]
         [string]$DeleteLocation,
     
-        [Parameter(Mandatory = $false, HelpMessage = "Specifies the arguments to use when opening the target.")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Add",HelpMessage = "Specifies the arguments to use when opening the target.")]        
+        [Parameter(Mandatory = $false,ParameterSetName = "Replace")]
         [string]$Arguments
     )     
     

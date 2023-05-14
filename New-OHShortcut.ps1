@@ -197,39 +197,39 @@ function New-OHShortcut {
                 break
             }
             
-                # Create desktop shortcut
-                $shortcutPath = Join-Path $desktopPath "$ShortcutName.lnk"
-                $shortcutExists = Test-Path $shortcutPath
-                if ($shortcutExists) {
-                    Write-Host "Shortcut already exists on desktop." -ForegroundColor Cyan
-                }
-                else {
-                    $shortcut = $wshell.CreateShortcut($shortcutPath)
-                    $shortcut.TargetPath = $TargetPath
-                    $shortcut.WorkingDirectory = $WorkingDirectory
-                    $shortcut.IconLocation = $IconLocation
-                    $shortcut.WindowStyle = $WindowsStyle
-                    $shortcut.Arguments = $Arguments
-                    $shortcut.Save()
-                    Write-Host "Desktop shortcut created." -ForegroundColor Green
-                }
+            # Create desktop shortcut
+            $shortcutPath = Join-Path $desktopPath "$ShortcutName.lnk"
+            $shortcutExists = Test-Path $shortcutPath
+            if ($shortcutExists) {
+                Write-Host "Shortcut already exists on desktop." -ForegroundColor Cyan
+            }
+            else {
+                $shortcut = $wshell.CreateShortcut($shortcutPath)
+                $shortcut.TargetPath = $TargetPath
+                $shortcut.WorkingDirectory = $WorkingDirectory
+                $shortcut.IconLocation = $IconLocation
+                $shortcut.WindowStyle = $WindowsStyle
+                $shortcut.Arguments = $Arguments
+                $shortcut.Save()
+                Write-Host "Desktop shortcut created." -ForegroundColor Green
+            }
             
-                # Create start menu shortcut
-                $shortcutPath = Join-Path $StartMenuPath "$ShortcutName.lnk"
-                $shortcutExists = Test-Path $shortcutPath
-                if ($shortcutExists) {
-                    Write-Host "Shortcut already exists in Start Menu." -ForegroundColor Cyan
-                }
-                else {
-                    $shortcut = $wshell.CreateShortcut($shortcutPath)
-                    $shortcut.TargetPath = $TargetPath
-                    $shortcut.WorkingDirectory = $WorkingDirectory
-                    $shortcut.IconLocation = $IconLocation
-                    $shortcut.WindowStyle = $WindowsStyle
-                    $shortcut.Arguments = $Arguments
-                    $shortcut.Save()
-                    Write-Host "Start Menu shortcut created." -ForegroundColor Green
-                }
+            # Create start menu shortcut
+            $shortcutPath = Join-Path $StartMenuPath "$ShortcutName.lnk"
+            $shortcutExists = Test-Path $shortcutPath
+            if ($shortcutExists) {
+                Write-Host "Shortcut already exists in Start Menu." -ForegroundColor Cyan
+            }
+            else {
+                $shortcut = $wshell.CreateShortcut($shortcutPath)
+                $shortcut.TargetPath = $TargetPath
+                $shortcut.WorkingDirectory = $WorkingDirectory
+                $shortcut.IconLocation = $IconLocation
+                $shortcut.WindowStyle = $WindowsStyle
+                $shortcut.Arguments = $Arguments
+                $shortcut.Save()
+                Write-Host "Start Menu shortcut created." -ForegroundColor Green
+            }
             
         }
     }

@@ -59,7 +59,7 @@ function New-OHShortcut {
     
     Created By: owen.heaume
     Date: 12-May-2023
-    Version: 1.1
+    Version: 1.2
     #>
     
     [CmdletBinding(DefaultParameterSetName = "Add")]
@@ -194,17 +194,25 @@ function New-OHShortcut {
 
             if ($desktopShortcutExists -and $startMenuShortcutExists) {
                 Write-Host "Shortcut already exists on Desktop and in Start Menu." -ForegroundColor Cyan
+                break
             }
-            else {
+            
                 # Create desktop shortcut
-                $shortcut = $wshell.CreateShortcut($shortcutPath)
-                $shortcut.TargetPath = $TargetPath
-                $shortcut.WorkingDirectory = $WorkingDirectory
-                $shortcut.IconLocation = $IconLocation
-                $shortcut.WindowStyle = $WindowsStyle
-                $shortcut.Arguments = $Arguments
-                $shortcut.Save()
-                Write-Host "Desktop shortcut created." -ForegroundColor Green
+                $shortcutPath = Join-Path $desktopPath "$ShortcutName.lnk"
+                $shortcutExists = Test-Path $shortcutPath
+                if ($shortcutExists) {
+                    Write-Host "Shortcut already exists on desktop." -ForegroundColor Cyan
+                }
+                else {
+                    $shortcut = $wshell.CreateShortcut($shortcutPath)
+                    $shortcut.TargetPath = $TargetPath
+                    $shortcut.WorkingDirectory = $WorkingDirectory
+                    $shortcut.IconLocation = $IconLocation
+                    $shortcut.WindowStyle = $WindowsStyle
+                    $shortcut.Arguments = $Arguments
+                    $shortcut.Save()
+                    Write-Host "Desktop shortcut created." -ForegroundColor Green
+                }
             
                 # Create start menu shortcut
                 $shortcutPath = Join-Path $StartMenuPath "$ShortcutName.lnk"
@@ -222,7 +230,7 @@ function New-OHShortcut {
                     $shortcut.Save()
                     Write-Host "Start Menu shortcut created." -ForegroundColor Green
                 }
-            }
+            
         }
     }
     

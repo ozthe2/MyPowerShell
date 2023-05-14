@@ -59,7 +59,7 @@ function New-OHShortcut {
     
     Created By: owen.heaume
     Date: 12-May-2023
-    Version: 1.2
+    Version: 1.3
     #>
     
     [CmdletBinding(DefaultParameterSetName = "Add")]
@@ -187,16 +187,6 @@ function New-OHShortcut {
             }
         }
         "Both" {
-            $desktopShortcutPath = Join-Path $desktopPath "$ShortcutName.lnk"
-            $startMenuShortcutPath = Join-Path $startMenuPath "$ShortcutName.lnk"
-            $desktopShortcutExists = Test-Path $desktopShortcutPath
-            $startMenuShortcutExists = Test-Path $startMenuShortcutPath
-
-            if ($desktopShortcutExists -and $startMenuShortcutExists) {
-                Write-Host "Shortcut already exists on Desktop and in Start Menu." -ForegroundColor Cyan
-                break
-            }
-            
             # Create desktop shortcut
             $shortcutPath = Join-Path $desktopPath "$ShortcutName.lnk"
             $shortcutExists = Test-Path $shortcutPath

@@ -20,7 +20,7 @@ function New-OHShortcut {
     Specifies the location of the icon for the shortcut.
     
     .PARAMETER WindowsStyle
-    Specifies the window style for the shortcut. 
+    Specifies the window style for the shortcut. 3 = Maximised, 4 = Normal, 7 = Minimised. 
     
     .PARAMETER AddLocation
     Specifies the location of the shortcut to add: Desktop, StartMenu, or Both.
@@ -35,19 +35,19 @@ function New-OHShortcut {
     Specifies the arguments to use when opening the target.
     
     .EXAMPLE
-    New-OHShortcut -ShortcutName "Notepad" -TargetPath "C:\Windows\System32\notepad.exe" -AddLocation Desktop
+    New-OHShortcut -ShortcutName "Notepad" -TargetPath "C:\Windows\System32\notepad.exe" -AddLocation Desktop -IconLocation "C:\Windows\System32\notepad.exe"
     Creates a shortcut to Notepad on the desktop.
     
     .EXAMPLE
-    New-OHShortcut -ShortcutName "Calculator" -TargetPath "C:\Windows\System32\calc.exe" -AddLocation StartMenu
+    New-OHShortcut -ShortcutName "Calculator" -TargetPath "C:\Windows\System32\calc.exe" -AddLocation StartMenu -IconLocation "C:\Windows\System32\calc.exe"
     Creates a shortcut to Calculator in the Start menu.
     
     .EXAMPLE
-    New-OHShortcut -ShortcutName "MyApp" -TargetPath "C:\Program Files\MyApp\MyApp.exe" -AddLocation Both
+    New-OHShortcut -ShortcutName "MyApp" -TargetPath "C:\Program Files\MyApp\MyApp.exe" -AddLocation Both -IconLocation "C:\Program Files\MyApp\MyApp.exe"
     Creates a shortcut to MyApp on the desktop and in the Start menu.
     
     .EXAMPLE
-    New-OHShortcut -ShortcutName "MyApp" -ReplaceLocation Both -TargetPath "C:\Program Files\MyApp\MyApp.exe"
+    New-OHShortcut -ShortcutName "MyApp" -ReplaceLocation Both -TargetPath "C:\Program Files\MyApp\MyApp.exe" -IconLocation "C:\Program Files\MyApp\MyApp.exe"
     Replaces the shortcut to MyApp on the desktop and in the Start menu.
     
     .EXAMPLE

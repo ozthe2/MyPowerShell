@@ -8,31 +8,31 @@ function New-OHShortcut {
     It uses Windows Script Host to create the shortcut file.
     
     .PARAMETER ShortcutName
-    Specifies the name of the shortcut.
+    Specifies the name of the shortcut. This parameter is mandatory.
     
     .PARAMETER TargetPath
-    Specifies the path of the item that the shortcut opens.
+    Specifies the path of the item that the shortcut opens. This parameter is mandatory.
     
     .PARAMETER WorkingDirectory
-    Specifies the working directory for the target. 
+    Specifies the working directory for the target. This is an optional parameter. 
     
     .PARAMETER IconLocation
-    Specifies the location of the icon for the shortcut.
+    Specifies the location of the icon for the shortcut. If not provided then a default folder icon is used. This is an optional parameter.
     
     .PARAMETER WindowsStyle
-    Specifies the window style for the shortcut. 3 = Maximised, 4 = Normal, 7 = Minimised. 
+    Specifies the window style for the shortcut. 3 = Maximised, 4 = Normal, 7 = Minimised. Defaults to '7'. This is an optional parameter. 
     
     .PARAMETER AddLocation
-    Specifies the location of the shortcut to add: Desktop, StartMenu, or Both.
+    Specifies the location of the shortcut to add: Desktop, StartMenu, or Both. This parameter is mandatory
     
     .PARAMETER ReplaceLocation
-    Specifies the location of the shortcut to replace: Desktop, StartMenu, or Both.
+    Specifies the location of the shortcut to replace: Desktop, StartMenu, or Both. This parameter is mandatory
     
     .PARAMETER DeleteLocation
-    Specifies the location of the shortcut to delete: Desktop, StartMenu, or Both.
+    Specifies the location of the shortcut to delete: Desktop, StartMenu, or Both. This parameter is mandatory
     
     .PARAMETER Arguments
-    Specifies the arguments to use when opening the target.
+    Specifies the arguments to use when opening the target. This is an optional parameter.
     
     .EXAMPLE
     New-OHShortcut -ShortcutName "Notepad" -TargetPath "C:\Windows\System32\notepad.exe" -AddLocation Desktop -IconLocation "C:\Windows\System32\notepad.exe"
@@ -59,7 +59,9 @@ function New-OHShortcut {
     
     Created By: owen.heaume
     Date: 12-May-2023
-    Version: 1.4
+    Version: 1.5
+            - Changed all Write-Host to Write-Verbose
+            - Added default icon if path to one was not supplied  
     #>
     
     [CmdletBinding(DefaultParameterSetName = "Add")]
@@ -75,8 +77,8 @@ function New-OHShortcut {
         [Parameter(Mandatory = $false,ParameterSetName = "Replace")]
         [string]$WorkingDirectory = "",
     
-        [Parameter(Mandatory = $true, ParameterSetName = "Add",HelpMessage = "Specifies the location of the icon for the shortcut.")]        
-        [Parameter(Mandatory = $true,ParameterSetName = "Replace")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Add",HelpMessage = "Specifies the location of the icon for the shortcut.")]        
+        [Parameter(Mandatory = $false,ParameterSetName = "Replace")]
         [string]$IconLocation,
     
         [Parameter(Mandatory = $false, ParameterSetName = "Add",HelpMessage = "Specifies the window style for the shortcut.")]        
@@ -101,6 +103,9 @@ function New-OHShortcut {
         [string]$Arguments
     )     
     
+    # Set default shortcut icon if one was not given
+    if (!$IconLocation) { $IconLocation = 'imageres.dll,4' }
+
     # Construct paths to the desktop and start menu folders
     $desktopPath = [Environment]::GetFolderPath("Desktop")
     $StartMenuPath = [Environment]::GetFolderPath("CommonPrograms")
@@ -118,10 +123,10 @@ function New-OHShortcut {
         "Desktop" {
             if (Test-Path $shortcutPath) {
                 Remove-Item $shortcutPath
-                Write-Host "Desktop shortcut '$ShortcutName' has been deleted." -ForegroundColor Yellow
+                Write-Verbose "DELETE: Desktop shortcut '$ShortcutName' has been deleted."
             }
             else {
-                Write-Host "Desktop shortcut '$ShortcutName' does not exist." -ForegroundColor Cyan
+                Write-Verbose "DELETE: Desktop shortcut '$ShortcutName' does not exist."
             }
         }
     
@@ -129,29 +134,29 @@ function New-OHShortcut {
             $shortcutPath = Join-Path $startMenuPath "$ShortcutName.lnk"
             if (Test-Path $shortcutPath) {
                 Remove-Item $shortcutPath
-                Write-Host "Start menu shortcut '$ShortcutName' has been deleted." -ForegroundColor Yellow
+                Write-Verbose "DELETE: Start menu shortcut '$ShortcutName' has been deleted."
             }
             else {
-                Write-Host "Start menu shortcut '$ShortcutName' does not exist." -ForegroundColor Cyan
+                Write-Verbose "DELETE: Start menu shortcut '$ShortcutName' does not exist."
             }
         }
     
         "Both" {
             if (Test-Path $shortcutPath) {
                 Remove-Item $shortcutPath
-                Write-Host "Desktop shortcut '$ShortcutName' has been deleted." -ForegroundColor Yellow
+                Write-Verbose "DELETE: Desktop shortcut '$ShortcutName' has been deleted."
             }
             else {
-                Write-Host "Desktop shortcut '$ShortcutName' does not exist." -ForegroundColor Cyan
+                Write-Verbose "DELETE: Desktop shortcut '$ShortcutName' does not exist."
             }
     
             $shortcutPath = Join-Path $startMenuPath "$ShortcutName.lnk"
             if (Test-Path $shortcutPath) {
                 Remove-Item $shortcutPath
-                Write-Host "Start menu shortcut '$ShortcutName' has been deleted." -ForegroundColor Yellow
+                Write-Verbose "DELETE: Start menu shortcut '$ShortcutName' has been deleted."
             }
             else {
-                Write-Host "Start menu shortcut '$ShortcutName' does not exist." -ForegroundColor Cyan
+                Write-Verbose "DELETE: Start menu shortcut '$ShortcutName' does not exist."
             }
         }        
     }
@@ -159,7 +164,7 @@ function New-OHShortcut {
     switch ($AddLocation) {
         "Desktop" {
             if ($shortcutExists) {
-                Write-Host "Shortcut already exists on Desktop." -ForegroundColor Cyan
+                Write-Verbose "ADD: Shortcut '$ShortcutName' already exists on Desktop."
             }
             else {
                 # Create desktop shortcut
@@ -170,14 +175,14 @@ function New-OHShortcut {
                 $shortcut.WindowStyle = $WindowsStyle
                 $shortcut.Arguments = $Arguments
                 $shortcut.Save()
-                Write-Host "Desktop shortcut created." -ForegroundColor Green
+                Write-Verbose "ADD: Desktop shortcut '$ShortcutName' created."
             }
         }
         "StartMenu" {
             $shortcutPath = Join-Path $StartMenuPath "$ShortcutName.lnk"
             $shortcutExists = Test-Path $shortcutPath
             if ($shortcutExists) {
-                Write-Host "Shortcut already exists in Start Menu." -ForegroundColor Cyan
+                Write-Verbose "ADD: Shortcut '$ShortcutName'already exists in Start Menu."
             }
             else {
                 # Create start menu shortcut
@@ -188,7 +193,7 @@ function New-OHShortcut {
                 $shortcut.WindowStyle = $WindowsStyle
                 $shortcut.Arguments = $Arguments
                 $shortcut.Save()
-                Write-Host "Start Menu shortcut created." -ForegroundColor Green
+                Write-Verbose "ADD: Start Menu shortcut '$ShortcutName' created."
             }
         }
         "Both" {
@@ -196,7 +201,7 @@ function New-OHShortcut {
             $shortcutPath = Join-Path $desktopPath "$ShortcutName.lnk"
             $shortcutExists = Test-Path $shortcutPath
             if ($shortcutExists) {
-                Write-Host "Shortcut already exists on desktop." -ForegroundColor Cyan
+                Write-Verbose "ADD: Shortcut '$ShortcutName' already exists on desktop."
             }
             else {
                 $shortcut = $wshell.CreateShortcut($shortcutPath)
@@ -206,14 +211,14 @@ function New-OHShortcut {
                 $shortcut.WindowStyle = $WindowsStyle
                 $shortcut.Arguments = $Arguments
                 $shortcut.Save()
-                Write-Host "Desktop shortcut created." -ForegroundColor Green
+                Write-Verbose "ADD: Desktop shortcut '$ShortcutName' created."
             }
             
             # Create start menu shortcut
             $shortcutPath = Join-Path $StartMenuPath "$ShortcutName.lnk"
             $shortcutExists = Test-Path $shortcutPath
             if ($shortcutExists) {
-                Write-Host "Shortcut already exists in Start Menu." -ForegroundColor Cyan
+                Write-Verbose "ADD: Shortcut '$ShortcutName' already exists in Start Menu."
             }
             else {
                 $shortcut = $wshell.CreateShortcut($shortcutPath)
@@ -223,7 +228,7 @@ function New-OHShortcut {
                 $shortcut.WindowStyle = $WindowsStyle
                 $shortcut.Arguments = $Arguments
                 $shortcut.Save()
-                Write-Host "Start Menu shortcut created." -ForegroundColor Green
+                Write-Verbose "ADD: Start Menu shortcut created."
             }
             
         }
@@ -240,7 +245,7 @@ function New-OHShortcut {
                 $shortcut.WindowStyle = $WindowsStyle
                 $shortcut.Arguments = $Arguments
                 $shortcut.Save()
-                Write-Host "Shortcut '$ShortcutName' on desktop replaced successfully." -ForegroundColor Green
+                Write-Verbose "REPLACE: Shortcut '$ShortcutName' on desktop replaced successfully."
             }
             else {
                 $shortcut = $wshell.CreateShortcut($shortcutPath)
@@ -250,7 +255,7 @@ function New-OHShortcut {
                 $shortcut.WindowStyle = $WindowsStyle
                 $shortcut.Arguments = $Arguments
                 $shortcut.Save()
-                Write-Host "Shortcut '$ShortcutName' created successfully on desktop." -ForegroundColor Green
+                Write-Verbose "REPLACE: Shortcut '$ShortcutName' created successfully on desktop."
             }
         }
         "StartMenu" {
@@ -265,7 +270,7 @@ function New-OHShortcut {
                 $shortcut.WindowStyle = $WindowsStyle
                 $shortcut.Arguments = $Arguments
                 $shortcut.Save()
-                Write-Host "Shortcut '$ShortcutName' in start menu replaced successfully." -ForegroundColor Green
+                Write-Verbose "REPLACE: Shortcut '$ShortcutName' in start menu replaced successfully."
             }
             else {
                 $shortcut = $wshell.CreateShortcut($shortcutPath)
@@ -275,7 +280,7 @@ function New-OHShortcut {
                 $shortcut.WindowStyle = $WindowsStyle
                 $shortcut.Arguments = $Arguments
                 $shortcut.Save()
-                Write-Host "Shortcut '$ShortcutName' created successfully in start menu." -ForegroundColor Green
+                Write-Verbose "REPLACE: Shortcut '$ShortcutName' created successfully in start menu."
             }
             break
         }
@@ -301,7 +306,7 @@ function New-OHShortcut {
                 $startMenuShortcut.WindowStyle = $WindowsStyle
                 $startMenuShortcut.Arguments = $Arguments
                 $startMenuShortcut.Save()
-                Write-Host "Shortcut '$ShortcutName' replaced successfully on both desktop and start menu." -ForegroundColor Green
+                Write-Verbose "REPLACE: Shortcut '$ShortcutName' replaced successfully on both desktop and start menu."
             }
             else {
                 $desktopShortcut = $wshell.CreateShortcut($desktopShortcutPath)
@@ -318,7 +323,7 @@ function New-OHShortcut {
                 $startMenuShortcut.WindowStyle = $WindowsStyle
                 $startMenuShortcut.Arguments = $Arguments
                 $startMenuShortcut.Save()
-                Write-Host "Shortcut '$ShortcutName' created successfully on both desktop and start menu." -ForegroundColor Green
+                Write-Verbose "REPLACE: Shortcut '$ShortcutName' created successfully on both desktop and start menu."
             }
             break
         }

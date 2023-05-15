@@ -59,7 +59,7 @@ function New-OHShortcut {
     
     Created By: owen.heaume
     Date: 12-May-2023
-    Version: 1.5
+    Version: 1.5 (15-May-2023)
             - Changed all Write-Host to Write-Verbose
             - Added default icon if path to one was not supplied  
     #>

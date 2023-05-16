@@ -33,10 +33,16 @@ function New-OHShortcut {
     
     .PARAMETER Arguments
     Specifies the arguments to use when opening the target. This is an optional parameter.
+
+    .PARAMETER UseLoggedInUsersDesktop
+    Specifies whether to create any desktop shortcuts on the logged-in user's desktop.
+
+    By default, the shortcut is created in the public (all users) desktop. If you include this switch, the shortcut will be created on the logged-in user's desktop.
+    If you are deploying this script under a 'SYSTEM' account then do not use this switch.
     
     .EXAMPLE
-    New-OHShortcut -ShortcutName "Notepad" -TargetPath "C:\Windows\System32\notepad.exe" -AddLocation Desktop -IconLocation "C:\Windows\System32\notepad.exe"
-    Creates a shortcut to Notepad on the desktop.
+    New-OHShortcut -ShortcutName "Notepad" -TargetPath "C:\Windows\System32\notepad.exe" -AddLocation Desktop -IconLocation "C:\Windows\System32\notepad.exe" -UseLoggedInUsersDesktop
+    Creates a shortcut to Notepad on the logged in user desktop.
     
     .EXAMPLE
     New-OHShortcut -ShortcutName "Calculator" -TargetPath "C:\Windows\System32\calc.exe" -AddLocation StartMenu -IconLocation "C:\Windows\System32\calc.exe"
@@ -44,24 +50,28 @@ function New-OHShortcut {
     
     .EXAMPLE
     New-OHShortcut -ShortcutName "MyApp" -TargetPath "C:\Program Files\MyApp\MyApp.exe" -AddLocation Both -IconLocation "C:\Program Files\MyApp\MyApp.exe"
-    Creates a shortcut to MyApp on the desktop and in the Start menu.
+    Creates a shortcut to MyApp on the public desktop and in the Start menu.
     
     .EXAMPLE
     New-OHShortcut -ShortcutName "MyApp" -ReplaceLocation Both -TargetPath "C:\Program Files\MyApp\MyApp.exe" -IconLocation "C:\Program Files\MyApp\MyApp.exe"
-    Replaces the shortcut to MyApp on the desktop and in the Start menu.
+    Replaces the shortcut to MyApp on the public desktop and in the Start menu.
     
     .EXAMPLE
     New-OHShortcut -ShortcutName "MyApp" -DeleteLocation Both
-    Deletes the shortcut to MyApp on the desktop and in the Start menu.
+    Deletes the shortcut to MyApp on the public desktop and in the Start menu.
     
     .NOTES
     This function uses Windows Script Host to create the shortcut file. The script may fail if WScript is not installed or if the user account does not have sufficient privileges to create files in the specified locations.
     
     Created By: owen.heaume
     Date: 12-May-2023
-    Version: 1.5 (15-May-2023)
-            - Changed all Write-Host to Write-Verbose
-            - Added default icon if path to one was not supplied  
+    Version: 1.6 (16-May-2023)
+                - Changed default desktop location to Public Desktop
+                - Added switch to set desktop location to logged in user
+                - Fixed a Write-Verbose message to include the name of the shortcut
+             1.5 (15-May-2023)
+                - Changed all Write-Host to Write-Verbose
+                - Added default icon if path to one was not supplied                
     #>
     
     [CmdletBinding(DefaultParameterSetName = "Add")]
@@ -100,14 +110,20 @@ function New-OHShortcut {
     
         [Parameter(Mandatory = $false, ParameterSetName = "Add",HelpMessage = "Specifies the arguments to use when opening the target.")]        
         [Parameter(Mandatory = $false,ParameterSetName = "Replace")]
-        [string]$Arguments
+        [string]$Arguments,
+
+        [Switch]$UseLoggedInUsersDesktop
     )     
     
     # Set default shortcut icon if one was not given
     if (!$IconLocation) { $IconLocation = 'imageres.dll,4' }
 
     # Construct paths to the desktop and start menu folders
-    $desktopPath = [Environment]::GetFolderPath("Desktop")
+    If ($UseLoggedInUsersDesktop) {
+        $desktopPath = [Environment]::GetFolderPath("Desktop") # Logged in users desktop
+    } else {
+        $desktopPath = [Environment]::GetFolderPath("CommonDesktopDirectory") # Public desktop
+    }
     $StartMenuPath = [Environment]::GetFolderPath("CommonPrograms")
     
     # Create a WScript Shell object to work with
@@ -228,7 +244,7 @@ function New-OHShortcut {
                 $shortcut.WindowStyle = $WindowsStyle
                 $shortcut.Arguments = $Arguments
                 $shortcut.Save()
-                Write-Verbose "ADD: Start Menu shortcut created."
+                Write-Verbose "ADD: Start Menu shortcut '$ShortcutName' created."
             }
             
         }

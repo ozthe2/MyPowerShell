@@ -8,6 +8,16 @@ Describe "New-OHShortcut" {
         $shortcutPathAU = [System.IO.Path]::Combine([Environment]::GetFolderPath("CommonDesktopDirectory"), "$shortcutName.lnk")
         $startMenuPathLI = "$env:APPDATA\Microsoft\Windows\Start Menu\$shortcutname.lnk"
         $startMenuPathAU = [System.IO.Path]::Combine([Environment]::GetFolderPath("CommonPrograms"), "$shortcutName.lnk")
+
+        # Test cases for parameters with null or empty values
+        $nullEmptyTestCases = @(
+            @{ ArgumentValue = $null
+               IconValue = $null
+            },
+            @{ ArgumentValue = ""
+               IconValue = ""
+            }
+        )
     }
 
     AfterEach {
@@ -90,6 +100,19 @@ Describe "New-OHShortcut" {
             $shortcutExists | Should -Be $true
             $startMenuExists = Test-Path $startMenuPathAU
             $startMenuExists | Should -Be $true
+        }
+    }
+
+    Context "Parameters with null or empty values" {
+        It "Should still create the shortcut if -argument or -icon is Null or empty" -TestCases $nullEmptyTestCases {
+            
+            param ($arguments,$icon)
+        
+            New-OHShortcut -ShortcutName $shortcutName -TargetPath $targetPath -CreateLocation startmenu -arguments $arguments -icon $icon
+            $shortcutExists = Test-Path $startMenuPathAU
+            $shortcutExists
+            $shortcutExists | Should -Be $true -because "the shortcut should still be created"
+
         }
     }
 }

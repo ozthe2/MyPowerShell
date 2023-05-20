@@ -9,5 +9,6 @@ Need to create shortcuts on a Windows computer?  I've got you covered.
 - Optionally specify arguments.
 - Optionally specify working directory.
 - Optionally specify shortcut icon.
+- Optionally specify Window Style.
 - Simple to use. (See included comment based help.)
 - Defaults to public\all users in all cases unless told otherwise. (Useful if deploying this via deployment software as SYSTEM eg Intune.)

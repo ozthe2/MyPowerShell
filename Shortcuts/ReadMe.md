@@ -10,4 +10,4 @@ Need to create shortcuts on a Windows computer?  I've got you covered.
 - Optionally specify working directory.
 - Optionally specify shortcut icon.
 - Simple to use. (See included comment based help.)
-- Defaults to public in all cases unless told otherwise. (Useful if deploying this via deployment software as SYSTEM eg Intune.)
+- Defaults to public\all users in all cases unless told otherwise. (Useful if deploying this via deployment software as SYSTEM eg Intune.)

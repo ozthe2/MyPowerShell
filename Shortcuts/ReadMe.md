@@ -15,6 +15,6 @@ Need to create shortcuts on a Windows computer?  I've got you covered.
 - Defaults to public\all users in all cases unless told otherwise. (Useful if deploying this via deployment software as SYSTEM eg Intune.)
 
 ## Remove-OHShortcut
-- Delete a shortcut on the logged-in user's desktop or the the Public desktop. 
-- Delete a shortcut on the logged in users start menu or the the all user's start menu.
+- Delete a shortcut on the logged-in user's desktop or the Public desktop. 
+- Delete a shortcut on the logged in users start menu or the all user's start menu.
 - Delete a shortcut in the start menu and desktop. (For the logged-in user or all user's.)

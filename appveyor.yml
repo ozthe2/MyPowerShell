@@ -3,7 +3,7 @@ version: 1.0.{build}
 image: Visual Studio 2019
 
 environment:
-  PSModulePath: "$env:PSModulePath;$(Build.Repository.LocalPath)\src"
+  PSModulePath: "$env:PSModulePath;$(Build.Repository.LocalPath)/src"
 
 install:
   - ps: Install-Module -Name Pester -Force -SkipPublisherCheck

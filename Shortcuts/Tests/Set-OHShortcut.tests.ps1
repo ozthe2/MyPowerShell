@@ -1,5 +1,5 @@
 BeforeAll {
-    . ".\Set-OHShortcut.ps1"    
+    . "$PSScriptRoot\..\Shortcuts\Set-OHshortcut.ps1"    
 }
 
 Describe "Set-OHShortcut" {

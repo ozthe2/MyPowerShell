@@ -11,6 +11,8 @@ install:
   # Install Pester using Chocolatey
   - choco install pester -y
 
+build: off
+
 test_script:
   # Execute the Pester tests using the script file
   - ps: Invoke-Pester -Path '.\Tests' -EnableExit

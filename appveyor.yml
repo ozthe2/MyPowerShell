@@ -1,18 +1,25 @@
-# See http://www.appveyor.com/docs/appveyor-yml for many more options
+version: 1.0.{build}
 
-# Allow WMF5 (i.e. PowerShellGallery functionality)
-os: WMF 5
+image: Visual Studio 2019
 
-# Skip on updates to the readme.
-# We can force this by adding [skip ci] or [ci skip] anywhere in commit message 
-skip_commits:
-  message: /updated readme.*/
+environment:
+  PSModulePath: "$env:PSModulePath;$(Build.Repository.LocalPath)\src"
 
 install:
-  - cinst pester -y
+  - ps: Install-Module -Name Pester -Force -SkipPublisherCheck
 
-build: false
+build_script:
+  - ps: |
+      $testResults = Invoke-Pester -Path './tests' -PassThru
+      if ($testResults.FailedCount -gt 0) {
+        $testResults | Format-Table -AutoSize
+        throw "Pester tests failed!"
+      }
 
-test_script:
-# Test with native PS version
-  - ps: . .\Shortcuts\Tests\appveyor.pester.ps1 -Test -Finalize
+test_script: {}
+
+artifacts: []
+
+branches:
+  only:
+    - master

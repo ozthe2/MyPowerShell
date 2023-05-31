@@ -1,5 +1,5 @@
 ﻿BeforeAll {
-    . "$PSScriptRoot\..\Registry\Set-OHRegistryKey.ps1"
+    . "$PSScriptRoot\..\..\Registry\Set-OHRegistryKey.ps1"
 }
 
 Describe "Set-OHRegistryKey" {

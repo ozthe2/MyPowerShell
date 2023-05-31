@@ -17,4 +17,5 @@ test_script:
   # Execute the Pester tests using the script file
   #- ps: Invoke-Pester -Path '.\Tests' -EnableExit
   - ps: Invoke-Pester -Path '.\Shortcuts\Tests' -EnableExit
+  - ps: Invoke-Pester -Path '.\Registry\Tests' -EnableExit
 

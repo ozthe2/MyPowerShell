@@ -1,5 +1,5 @@
 ﻿BeforeAll {
-    . ".\Remove-OHRegistryKey.ps1"
+    . "$PSScriptRoot\..\Registry\Remove-OHRegistryKey.ps1"
 }
 
 Describe "Remove-OHRegistryKey Tests" {

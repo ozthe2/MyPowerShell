@@ -97,16 +97,16 @@ Describe "New-OHShortcut" {
         # Test cases for parameters with null or empty values
         $nullEmptyTestCases = @(
             @{ ArgumentValue = $null
-               IconValue = $null
+                IconValue    = $null
             },
             @{ ArgumentValue = ""
-               IconValue = ""
+                IconValue    = ""
             }
         )
         
         It "Should still create the shortcut if -argument or -icon is Null or empty" -TestCases $nullEmptyTestCases {
             
-            param ($arguments,$icon)
+            param ($arguments, $icon)
         
             New-OHShortcut -ShortcutName $shortcutName -TargetPath $targetPath -CreateLocation startmenu -arguments $arguments -icon $icon
             $shortcutExists = Test-Path $startMenuPathAU

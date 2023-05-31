@@ -1,5 +1,5 @@
 BeforeAll {
-    . "$PSScriptRoot\..\ScheduledTask\Remove-OHScheduledTask.ps1"
+    . "..\Remove-OHScheduledTask.ps1"
 }
 
 Describe "My test" {

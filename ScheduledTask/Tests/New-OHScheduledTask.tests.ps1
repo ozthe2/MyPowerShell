@@ -1,5 +1,5 @@
 ﻿BeforeAll {
-    . "$PSScriptRoot\..\ScheduledTask\New-OHScheduledTask.ps1"
+    . "..\New-OHScheduledTask.ps1"
 }
 
 Describe "New-OHScheduledTask" {    

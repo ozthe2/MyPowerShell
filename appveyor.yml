@@ -15,7 +15,6 @@ build: off
 
 test_script:
   # Execute the Pester tests using the script file
-  - ps: |
-    Invoke-Pester -Path '.\Tests' -EnableExit
-    Invoke-Pester -Path '.\ScheduledTask\Tests' -EnableExit
+  - ps: Invoke-Pester -Path '.\Tests' -EnableExit
+  - ps: Invoke-Pester -Path '.\ScheduledTask\Tests' -EnableExit
 

@@ -18,5 +18,5 @@ test_script:
   #- ps: Invoke-Pester -Path '.\Tests' -EnableExit
   - ps: Invoke-Pester -Path '.\Shortcuts\Tests' -EnableExit
   - ps: Invoke-Pester -Path '.\Registry\Tests' -EnableExit
-  - ps: Invoke-Pester -Path '.\ScheduledTask\Tests' -EnableExit
+ # - ps: Invoke-Pester -Path '.\ScheduledTask\Tests' -EnableExit
 

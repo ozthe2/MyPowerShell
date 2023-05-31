@@ -113,7 +113,7 @@
     
         [Parameter(Mandatory = $false, ParameterSetName = "Program")]
         [Parameter(Mandatory = $false, ParameterSetName = "Script")]
-        [string]$TaskFolder = "Specsavers",
+        [string]$TaskFolder = "OHTesting",
     
         [Parameter(Mandatory = $false, ParameterSetName = "Program")]
         [Parameter(Mandatory = $false, ParameterSetName = "Script")]

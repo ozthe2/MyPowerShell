@@ -1,6 +1,6 @@
 Describe "New-OHShortcut" {
     BeforeAll {
-        . "$PSScriptRoot\..\Shortcuts\New-OHshortcut.ps1"       
+        . "$PSScriptRoot\..\..\Shortcuts\New-OHshortcut.ps1"       
         $shortcutName = "TestShortcut"
         $targetPath = "C:\windows\system32\notepad.exe"
 

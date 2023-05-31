@@ -1,8 +1,8 @@
 ﻿BeforeAll {
-    . ".\New-SpecRegistryKey.ps1"
+    . ".\New-OHRegistryKey.ps1"
 }
 
-Describe "New-SpecRegistryKey" {
+Describe "New-OHRegistryKey" {
     BeforeEach {
         $keyPath = "HKCU:\Software\MyCompany"
         $valueName = "MyValue"
@@ -19,7 +19,7 @@ Describe "New-SpecRegistryKey" {
         $valueType = "string"
 
         # Act
-        $result = New-SpecRegistryKey -KeyPath $keyPath -ValueName $valueName -ValueData $valueData -ValueType $valueType
+        $result = New-OHRegistryKey -KeyPath $keyPath -ValueName $valueName -ValueData $valueData -ValueType $valueType
 
         # Assert
         $result | Should -Be $true
@@ -28,8 +28,7 @@ Describe "New-SpecRegistryKey" {
 
         $property = (Get-ItemProperty -Path $keyPath -Name $valueName).myValue
         $property.GetType().Name | Should -Be 'String'
-    }
-    
+    }    
 
     it "should create a new registry key with a DWORD value" {
         # Arrange
@@ -37,7 +36,7 @@ Describe "New-SpecRegistryKey" {
         $valueType = "dword"
 
         # Act
-        $result = New-SpecRegistryKey -KeyPath $keyPath -ValueName $valueName -ValueData $valueData -ValueType $valueType
+        $result = New-OHRegistryKey -KeyPath $keyPath -ValueName $valueName -ValueData $valueData -ValueType $valueType
 
         # Assert
         $result | Should -Be $true
@@ -47,7 +46,6 @@ Describe "New-SpecRegistryKey" {
         $property = (Get-ItemProperty -Path $keyPath -Name $valueName).myValue
         $property.GetType().Name | Should -Be 'Int32'
     }
-
   
     it "should return false if the registry path and value already exists" {
         # Arrange
@@ -55,11 +53,9 @@ Describe "New-SpecRegistryKey" {
         New-ItemProperty -Path "HKCU:\Software\MyCompany" -Name "MyValue" -Value "Hello, world!"
 
         # Act
-        $result = New-SpecRegistryKey -KeyPath "HKCU:\Software\MyCompany" -ValueName "MyValue" -ValueData "Hello, world!" -ValueType $valuetype
+        $result = New-OHRegistryKey -KeyPath "HKCU:\Software\MyCompany" -ValueName "MyValue" -ValueData "Hello, world!" -ValueType $valuetype
 
         # Assert
         $result | Should -Be $false
     }
-
 }
-

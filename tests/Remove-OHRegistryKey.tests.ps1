@@ -1,8 +1,8 @@
 ﻿BeforeAll {
-    . ".\Remove-SpecRegistryKey.ps1"
+    . ".\Remove-OHRegistryKey.ps1"
 }
 
-Describe "Remove-SpecRegistryKey Tests" {
+Describe "Remove-OHRegistryKey Tests" {
     # Mock the ShouldProcess function to simulate user confirmation
     Mock ShouldProcess { $true }
 
@@ -22,12 +22,12 @@ Describe "Remove-SpecRegistryKey Tests" {
         }
 
         It "Should remove the registry value and return true" {
-            $result = Remove-SpecRegistryKey -KeyPath $testKeyPath -ValueName $testValueName
+            $result = Remove-OHRegistryKey -KeyPath $testKeyPath -ValueName $testValueName
             $result | Should -Be $true
         }
 
         It "Should remove the registry value from the specified key" {
-            Remove-SpecRegistryKey -KeyPath $testKeyPath -ValueName $testValueName
+            Remove-OHRegistryKey -KeyPath $testKeyPath -ValueName $testValueName
             $valueExists = (Get-ItemProperty -Path $testKeyPath -Name $testValueName -ErrorAction SilentlyContinue)
             $valueExists | Should -Be $null
         }
@@ -46,14 +46,14 @@ Describe "Remove-SpecRegistryKey Tests" {
         }
 
         It "Should return false" {
-            $result = Remove-SpecRegistryKey -KeyPath $testKeyPath -ValueName "NonExistentValue"
+            $result = Remove-OHRegistryKey -KeyPath $testKeyPath -ValueName "NonExistentValue"
             $result | Should -Be $false
         }
     }
 
     Context "When the registry key does not exist" {
         It "Should return false" {
-            $result = Remove-SpecRegistryKey -KeyPath "HKCU:\Software\NonExistentKey" -ValueName "NonExistentValue"
+            $result = Remove-OHRegistryKey -KeyPath "HKCU:\Software\NonExistentKey" -ValueName "NonExistentValue"
             $result | Should -Be $false
         }
     }

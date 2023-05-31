@@ -1,10 +1,10 @@
-﻿function New-SpecRegistryKey {
+﻿function New-OHRegistryKey {
     <#
     .SYNOPSIS
     Creates a new registry key, value, and data if they do not already exist.
 
     .DESCRIPTION
-    The New-SpecRegistryKey function creates a new registry key, value, and data if they do not already exist. It checks for the existence of the registry key and value and creates them if necessary.
+    The New-OHRegistryKey function creates a new registry key, value, and data if they do not already exist. It checks for the existence of the registry key and value and creates them if necessary.
 
     .PARAMETER KeyPath
     Specifies the registry key path where the value will be created.
@@ -23,11 +23,11 @@
     The function returns $true if the registry key or value is created successfully. It returns $false if the registry key and value already exist, and no changes are made to the registry.
 
     .EXAMPLE
-    New-SpecRegistryKey -KeyPath "HKCU:\Software\MyApp" -ValueName "Setting1" -ValueData "Value1" -ValueType "String"
+    New-OHRegistryKey -KeyPath "HKCU:\Software\MyApp" -ValueName "Setting1" -ValueData "Value1" -ValueType "String"
     Creates a new registry key "HKCU:\Software\MyApp" if it does not exist, and then creates a new string registry value "Setting1" with the data "Value1". Returns $true if the registry key or value is created.
 
     .EXAMPLE
-    New-SpecRegistryKey -KeyPath "HKLM:\Software\MyApp" -ValueName "Setting2" -ValueData "123" -ValueType "DWord"
+    New-OHRegistryKey -KeyPath "HKLM:\Software\MyApp" -ValueName "Setting2" -ValueData "123" -ValueType "DWord"
     Creates a new registry key "HKLM:\Software\MyApp" if it does not exist, and then creates a new DWORD registry value "Setting2" with the data 123. Returns $true if the registry key or value is created.    
 
     .NOTES
@@ -72,8 +72,7 @@
             # Create the new registry value with data and type
             if ($ValueType -eq 'String') {
                 New-ItemProperty -Path $KeyPath -Name $ValueName -Value $ValueData -PropertyType String -Force | Out-Null
-            }
-            elseif ($ValueType -eq 'DWord') {
+            } elseif ($ValueType -eq 'DWord') {
                 New-ItemProperty -Path $KeyPath -Name $ValueName -Value ([int]$ValueData) -PropertyType DWord -Force | Out-Null
             }
             
@@ -81,10 +80,7 @@
         }
         write-verbose "$keypath and $ValueName ($ValueType) = $ValueData already exist - no changes to the registry are required"
         return $false
-    }
-    catch {
+    } catch {
         Write-Error "Failed to create registry key or value: $_"
     }
 }
-
-#New-SpecRegistryKey -KeyPath "HKLM:\Software\OHTesting\Info" -ValueName 'MyValue' -ValueData "Hello World!" -ValueType String -Verbose

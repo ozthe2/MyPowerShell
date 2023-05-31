@@ -1,8 +1,8 @@
 ﻿BeforeAll {
-    . ".\Set-SpecRegistryKey.ps1"
+    . ".\Set-OHRegistryKey.ps1"
 }
 
-Describe "Set-SpecRegistryKey" {
+Describe "Set-OHRegistryKey" {
     BeforeEach {
         $keyPath = "HKCU:\Software\Test"
         $valueName = "TestValue"
@@ -21,7 +21,7 @@ Describe "Set-SpecRegistryKey" {
             New-Item -Path $keyPath -Force | Out-Null
             New-ItemProperty -Path $keyPath -Name $valueName -Value "Initial Data" -PropertyType String | Out-Null
 
-            $result = Set-SpecRegistryKey -KeyPath $keyPath -ValueName $valueName -ValueData $valueData -ValueType $valueType
+            $result = Set-OHRegistryKey -KeyPath $keyPath -ValueName $valueName -ValueData $valueData -ValueType $valueType
             $modifiedValue = Get-ItemProperty -Path $keyPath -Name $valueName
 
             $result | Should -Be $true
@@ -34,7 +34,7 @@ Describe "Set-SpecRegistryKey" {
             $keyPath = "HKCU:\Software\NonExistentKey"
             $valueType = "String"
 
-            $result = Set-SpecRegistryKey -KeyPath $keyPath -ValueName $valueName -ValueData $valueData -ValueType $valueType
+            $result = Set-OHRegistryKey -KeyPath $keyPath -ValueName $valueName -ValueData $valueData -ValueType $valueType
 
             $result | Should -Be $false
         }
@@ -48,7 +48,7 @@ Describe "Set-SpecRegistryKey" {
             # Create the registry key for testing
             New-Item -Path $keyPath -Force | Out-Null
 
-            $result = Set-SpecRegistryKey -KeyPath $keyPath -ValueName $valueName -ValueData $valueData -ValueType $valueType
+            $result = Set-OHRegistryKey -KeyPath $keyPath -ValueName $valueName -ValueData $valueData -ValueType $valueType
 
             $result | Should -Be $false
         }
@@ -65,7 +65,7 @@ Describe "Set-SpecRegistryKey" {
 
             $errorActionPreference = "Stop"
 
-            { Set-SpecRegistryKey -KeyPath $keyPath -ValueName $valueName -ValueData $valueData -ValueType $valueType } | Should -throw
+            { Set-OHRegistryKey -KeyPath $keyPath -ValueName $valueName -ValueData $valueData -ValueType $valueType } | Should -throw
         }
     }
 }

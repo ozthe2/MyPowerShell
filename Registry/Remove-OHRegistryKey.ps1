@@ -1,10 +1,10 @@
-﻿function Remove-SpecRegistryKey {
+﻿function Remove-OHRegistryKey {
     <#
     .SYNOPSIS
     Removes a registry value from a specified key.
 
     .DESCRIPTION
-    The Remove-SpecRegistryKey function removes a registry value from the specified key. It returns true if the deletion is successful, or false if the value does not exist.
+    The Remove-OHRegistryKey function removes a registry value from the specified key. It returns true if the deletion is successful, or false if the value does not exist.
 
     .PARAMETER KeyPath
     Specifies the path of the registry key.
@@ -17,11 +17,11 @@
     Returns true if the registry value is successfully removed. Returns false if the value does not exist or if any errors occur.
 
     .EXAMPLE
-    PS> Remove-SpecRegistryKey -KeyPath "HKCU:\Software\Test" -ValueName "TestValue"
+    PS> Remove-OHRegistryKey -KeyPath "HKCU:\Software\Test" -ValueName "TestValue"
     True
 
     .EXAMPLE
-    PS> $result = Remove-SpecRegistryKey -KeyPath "HKCU:\Software\Test" -ValueName "NonExistentValue"
+    PS> $result = Remove-OHRegistryKey -KeyPath "HKCU:\Software\Test" -ValueName "NonExistentValue"
     $result
     False
 
@@ -62,11 +62,7 @@
             Remove-ItemProperty -Path $KeyPath -Name $ValueName -Force | Out-Null
             return $true
         }
-    }
-    catch {
+    } catch {
         Write-Error "Failed to remove registry value: $_"
     }
 }
-
-
-#Remove-SpecRegistryKey -KeyPath "HKLM:\Software\OHTesting\info" -ValueName "MyValue" -verbose

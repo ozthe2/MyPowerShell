@@ -8,6 +8,7 @@
 
 ```powershell
 New-OHRegistryKey -KeyPath <String> -ValueName <String> -ValueData <String> -ValueType <String>
+```
 
 ## Set-OHRegistryKey
 
@@ -19,4 +20,5 @@ New-OHRegistryKey -KeyPath <String> -ValueName <String> -ValueData <String> -Val
 
 ```powershell
 Set-OHRegistryKey -KeyPath <String> -ValueName <String> -ValueData <String> -ValueType <String>
+```
 

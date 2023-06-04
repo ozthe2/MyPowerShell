@@ -8,3 +8,15 @@
 
 ```powershell
 New-OHRegistryKey -KeyPath <String> -ValueName <String> -ValueData <String> -ValueType <String>
+
+## Set-OHRegistryKey
+
+- Sets the value of a registry key in the Windows Registry.
+- Checks if the specified registry key and value exist before modifying them.
+- Supports modifying registry values with different data types.
+
+### Syntax
+
+```powershell
+Set-OHRegistryKey -KeyPath <String> -ValueName <String> -ValueData <String> -ValueType <String>
+

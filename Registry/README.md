@@ -22,3 +22,13 @@ New-OHRegistryKey -KeyPath <String> -ValueName <String> -ValueData <String> -Val
 Set-OHRegistryKey -KeyPath <String> -ValueName <String> -ValueData <String> -ValueType <String>
 ```
 
+## Remove-OHRegistryKey
+
+- Removes a registry value from a specified key.
+- Returns `true` if the deletion is successful, or `false` if the value does not exist.
+
+### Syntax
+
+```powershell
+Remove-OHRegistryKey -KeyPath <String> -ValueName <String>
+```

@@ -222,7 +222,7 @@
         } catch {
             Write-Warning "The task was not registered"
             $x
-            exit
+            
         } 
     } else {
         write-verbose "Scheduled Task $taskname already exists so taking no action"
